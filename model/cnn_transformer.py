@@ -19,7 +19,7 @@ class Kansformer(nn.Module):
         super(Kansformer, self).__init__()
 
         # 添加一个额外的卷积层来处理不同通道数的输入
-        self.conv1_09a1 = nn.Conv2d(x_channels, 3, kernel_size=1)
+        self.conv1_modis = nn.Conv2d(x_channels, 3, kernel_size=1)
         self.conv1_11a2 = nn.Conv2d(y_channels, 3, kernel_size=1)
 
         # CNN部分，使用预训练的ResNet
@@ -65,10 +65,10 @@ class Kansformer(nn.Module):
         else:
             self.mlp = nn.Sequential(*layers)
 
-    def forward(self, x, y):
+    def forward(self, x, y, fldas):
         batch_size, timesteps, c, h, w = x.size()
         x_in = x.view(batch_size * timesteps, c, h, w)
-        x_in = self.conv1_09a1(x_in)
+        x_in = self.conv1_modis(x_in)
         x_out = self.cnn_09a1(x_in)
         r_in_x = x_out.view(batch_size, timesteps, -1).permute(1, 0, 2)
 

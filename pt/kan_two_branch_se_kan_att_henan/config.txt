@@ -19,7 +19,7 @@ n_lr_decay: 10
 decay_gamma: 0.5
 log_path: log
 save_path: pt
-model_name: 3d
+model_name: kan_two_branch
 save_name: kan_two_branch_se_kan_att_henan
 accumulation_steps: 1
 norm_ratio: 10
@@ -34,4 +34,4 @@ kan: True
 att: True
 fc: False
 split_str: \
-loss_f: rmse
+loss_f: mse

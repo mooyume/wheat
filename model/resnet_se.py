@@ -31,7 +31,6 @@ class SEResNet18(nn.Module):
         self.layer3 = self._make_layer(cnn_net.layer3, 256)
         self.layer4 = self._make_layer(cnn_net.layer4, 512)
         self.avgpool = cnn_net.avgpool
-        self.fc = nn.Linear(512, 256)
 
     def _make_layer(self, layer, channels):
         layers = []
@@ -53,8 +52,6 @@ class SEResNet18(nn.Module):
         x = self.layer4(x)
         # print(x.shape)
         x = self.avgpool(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc(x)
         # print(x.shape)
         return x
 
