@@ -59,7 +59,7 @@ parser.add_argument('--use_11a2', type=bool, default=True, help='use mod11a2 two
 parser.add_argument('--n_head', type=int, default=4, help='transformer config number of head')
 parser.add_argument('--n_layers', type=int, default=2, help='number of transformer layers')
 parser.add_argument('--use_se', type=bool, default=True, help='cnn add se block')
-parser.add_argument('--kan', type=bool, default=True, help='use kan or mlp')
+parser.add_argument('--kan', type=bool, default=False, help='use kan or mlp')
 parser.add_argument('--att', type=bool, default=True, help='attention before cat')
 parser.add_argument('--fc', type=bool, default=False, help='kan with fc')
 parser.add_argument('--split_str', type=str, default=split_str, help='split_str')

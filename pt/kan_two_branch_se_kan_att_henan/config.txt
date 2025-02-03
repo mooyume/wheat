@@ -34,7 +34,7 @@ use_11a2: True
 n_head: 4
 n_layers: 2
 use_se: True
-kan: True
+kan: False
 att: True
 fc: False
 split_str: \
