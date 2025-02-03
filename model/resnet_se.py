@@ -59,7 +59,7 @@ class SEResNet18(nn.Module):
 if __name__ == '__main__':
     input_tensor = torch.randn(32, 3, 224, 224)
 
-    model = SEResNet18(pretrained=True)
+    # model = SEResNet18(pretrained=True)
     model = SEResNet18(pretrained=True)
     out = model(input_tensor)
     print(model)

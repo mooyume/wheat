@@ -53,9 +53,10 @@ def loss_function():
     return loss_functions.get(opt.loss_f, rmse_loss)
 
 
-def process_file(file_path, old_str, new_str):
+def process_file(file_path, old_str, new_str, fldas):
     list_old = []
     list_new = []
+    list_fldas = []
 
     with open(file_path, 'r') as f:
         for line in f:
@@ -64,7 +65,11 @@ def process_file(file_path, old_str, new_str):
             line = line.replace(old_str, new_str)
             list_new.append(line.strip())
 
-    return list_old, list_new
+            fldas_line = line.strip().replace(new_str, fldas)
+            fldas_line = os.path.join(fldas_line, 'matched_temporal')
+            list_fldas.append(fldas_line.strip())
+
+    return list_old, list_new, list_fldas
 
 
 def train():
@@ -87,15 +92,15 @@ def train():
     shuffle = True
 
     # 数据集文件夹列表
-    train_09a1, train_11a2 = process_file(opt.train_file, 'mod09a1', 'mod11a2')
-    val_09a1, val_11a2 = process_file(opt.val_file, 'mod09a1', 'mod11a2')
+    train_09a1, train_11a2, train_fldas = process_file(opt.train_file, 'mod09a1', 'mod11a2', 'fldas')
+    val_09a1, val_11a2, val_fldas = process_file(opt.val_file, 'mod09a1', 'mod11a2', 'fldas')
 
     logger.info('Begin build dataset========================================')
-    train_dataset = ImageSequenceDataset(train_09a1, train_11a2, hdf5_09a1=opt.train_h5_09a1,
-                                         hdf5_11a2=opt.train_h5_11a2)
+    train_dataset = ImageSequenceDataset(train_09a1, train_11a2, train_fldas, hdf5_09a1=opt.train_h5_09a1,
+                                         hdf5_11a2=opt.train_h5_11a2, hdf5_fldas=opt.train_h5_fldas)
     min_val, max_val = train_dataset.raw_min_val, train_dataset.raw_max_val
-    val_dataset = ImageSequenceDataset(val_09a1, val_11a2, hdf5_09a1=opt.val_h5_09a1,
-                                       hdf5_11a2=opt.val_h5_11a2, min_val=min_val, max_val=max_val, is_train=False)
+    val_dataset = ImageSequenceDataset(val_09a1, val_11a2, val_fldas, hdf5_09a1=opt.val_h5_09a1,
+                                       hdf5_11a2=opt.val_h5_11a2, hdf5_fldas=opt.val_h5_fldas, min_val=min_val, max_val=max_val, is_train=False)
     train_dataloader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=shuffle)
     val_dataloader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=shuffle)
 
@@ -113,11 +118,11 @@ def train():
         for param_group in optimizer.param_groups:
             logger.info(f'Epoch: {epoch + 1}, Learning rate: {param_group["lr"]}')
 
-        for i, (x, y, labels, path, _) in enumerate(train_dataloader):
+        for i, (x, y, fldas, labels, path, _, history_data) in enumerate(train_dataloader):
             x = x.to(device)
             y = y.to(device)
             labels = labels.view(-1, 1).to(device)
-            outputs = model(x, y)
+            outputs = model(x, y, fldas, history_data)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
@@ -134,11 +139,11 @@ def train():
         area_metric = numpy.array([])
         path_metric = numpy.array([])
         with torch.no_grad():  # 在验证过程中不需要计算梯度
-            for x, y, labels, path, area in val_dataloader:  # 假设val_dataloader是你的验证数据加载器
+            for x, y, fldas, labels, path, area, history_data in val_dataloader:  # 假设val_dataloader是你的验证数据加载器
                 x = x.to(device)
                 y = y.to(device)
                 labels = labels.view(-1, 1).to(device)
-                outputs = model(x, y)
+                outputs = model(x, y, fldas, history_data)
                 val_loss += criterion(outputs, labels).item()  # 累加每个批次的损失
                 if opt.label_nor:
                     real_outputs = (outputs / opt.norm_ratio) * (max_val - min_val) + min_val

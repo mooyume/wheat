@@ -6,6 +6,7 @@ import torch
 from config.config import option as opt
 from model.Kansformer import Kansformer
 from model.cnn3_pred import YieldPredictionModel
+from model.cnn_transformer import Kansformer_lstm
 
 
 def build_model(logger, is_train=False, is_test=False, model_name=None):
@@ -14,6 +15,8 @@ def build_model(logger, is_train=False, is_test=False, model_name=None):
         model = Kansformer(opt.x_channel, opt.y_channel)
     elif opt.model_name == '3d':
         model = YieldPredictionModel(time_steps=32, in_channels=(int(opt.x_channel) + int(opt.y_channel)))
+    elif opt.model_name == '2cnn_lstm_kan':
+        model = Kansformer_lstm(9, 8)
     else:
         raise ValueError('model name error, please check model name!!')
     logger.info(model)
