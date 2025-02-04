@@ -121,6 +121,8 @@ def train():
         for i, (x, y, fldas, labels, path, _, history_data) in enumerate(train_dataloader):
             x = x.to(device)
             y = y.to(device)
+            fldas = y.to(device)
+            history_data = y.to(device)
             labels = labels.view(-1, 1).to(device)
             outputs = model(x, y, fldas, history_data)
             loss = criterion(outputs, labels)

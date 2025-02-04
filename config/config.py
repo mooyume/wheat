@@ -4,12 +4,21 @@ import sys
 if sys.platform.startswith('linux'):
     default_path = '/root/autodl-tmp/'
     split_str = '/'
+    file_paths = [r"/root/wheat/data/gansu-label.xlsx",
+                  r"/root/wheat/data/henan-label.xlsx",
+                  r"/root/wheat/data/shanxi-label.xlsx"]
 elif sys.platform == 'win32':
     default_path = 'data/'
     split_str = '\\'
+    file_paths = [r"E:\25holiday\data\label\gansu-label.xlsx",
+                  r"E:\25holiday\data\label\henan-label.xlsx",
+                  r"E:\25holiday\data\label\shanxi-label.xlsx"]
 else:
     default_path = 'data/'
     split_str = '\\'
+    file_paths = [r"E:\25holiday\data\label\gansu-label.xlsx",
+                  r"E:\25holiday\data\label\henan-label.xlsx",
+                  r"E:\25holiday\data\label\shanxi-label.xlsx"]
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--x_channel', type=int, default=7, help='number of image channel')
@@ -53,7 +62,7 @@ parser.add_argument('--norm_ratio', type=int, default=10, help='norm ratio')
 parser.add_argument('--img_shape', type=int, default=134, help='img_shape')
 parser.add_argument('--fldas_shape', type=int, default=16, help='img_shape')
 parser.add_argument('--time_att', type=bool, default=True, help='img_shape')
-parser.add_argument('--label_nor', type=bool, default=True, help='产量归一化')
+parser.add_argument('--label_nor', type=bool, default=False, help='产量归一化')
 
 parser.add_argument('--use_11a2', type=bool, default=True, help='use mod11a2 two branch')
 parser.add_argument('--n_head', type=int, default=4, help='transformer config number of head')
@@ -64,7 +73,6 @@ parser.add_argument('--att', type=bool, default=True, help='attention before cat
 parser.add_argument('--fc', type=bool, default=False, help='kan with fc')
 parser.add_argument('--split_str', type=str, default=split_str, help='split_str')
 parser.add_argument('--loss_f', type=str, default='mse', help='loss function [mse, l1, rmse]')
-
 
 parser.add_argument('--struct', type=str, default='one_encoder', help='[one_encoder, two_encoder]')
 
