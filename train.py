@@ -47,7 +47,8 @@ def loss_function():
     loss_functions = {
         'mse': nn.MSELoss(),
         'l1': nn.L1Loss(),
-        'rmse': rmse_loss
+        'rmse': rmse_loss,
+        'huber': nn.HuberLoss()
     }
 
     return loss_functions.get(opt.loss_f, rmse_loss)
@@ -83,7 +84,7 @@ def train():
     logger = setup_logger(file_path)
     logger.info(opt)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    logger.info(device)
+    logger.info(f'current device: {device}')
 
     model = build_model(logger, is_train=True)
     model.to(device)

@@ -42,7 +42,7 @@ class Kansformer_lstm(nn.Module):
 
         self.time_step_att = TimeStepAttention(input_dim=d_model * 2, num_heads=opt.n_head)
         hidden_size = 64
-        self.lstm = LSTMModel(1, hidden_size, 1)
+        self.lstm = LSTMModel(1, hidden_size, 1).to('cuda')
         self.qkv_fusion = QKVFusion(hidden_size, d_model * 2)
         if opt.att:
             self.att = Attention(input_dim=d_model * 2)

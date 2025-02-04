@@ -72,7 +72,7 @@ parser.add_argument('--kan', type=bool, default=False, help='use kan or mlp')
 parser.add_argument('--att', type=bool, default=True, help='attention before cat')
 parser.add_argument('--fc', type=bool, default=False, help='kan with fc')
 parser.add_argument('--split_str', type=str, default=split_str, help='split_str')
-parser.add_argument('--loss_f', type=str, default='mse', help='loss function [mse, l1, rmse]')
+parser.add_argument('--loss_f', type=str, default='huber', help='loss function [mse, l1, rmse, huber]')
 
 parser.add_argument('--struct', type=str, default='one_encoder', help='[one_encoder, two_encoder]')
 
