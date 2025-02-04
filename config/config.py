@@ -23,10 +23,10 @@ else:
 parser = argparse.ArgumentParser()
 parser.add_argument('--x_channel', type=int, default=7, help='number of image channel')
 parser.add_argument('--y_channel', type=int, default=2, help='number of image channel')
-parser.add_argument('--batch_size', type=int, default=10, help='size of the batches')
+parser.add_argument('--batch_size', type=int, default=16, help='size of the batches')
 parser.add_argument('--train_file', type=str, default='data/train.txt', help='The file of train')
-parser.add_argument('--val_file', type=str, default='data/test.txt', help='The file of val')
-parser.add_argument('--test_file', type=str, default='data/test.txt', help='The file of test')
+parser.add_argument('--val_file', type=str, default='data/val.txt', help='The file of val')
+parser.add_argument('--test_file', type=str, default='data/val.txt', help='The file of test')
 
 parser.add_argument('--train_h5_09a1', type=str, default=default_path + '/train_09a1.h5',
                     help='The h5 file of train')
@@ -67,13 +67,13 @@ parser.add_argument('--label_nor', type=bool, default=False, help='产量归一�
 parser.add_argument('--use_11a2', type=bool, default=True, help='use mod11a2 two branch')
 parser.add_argument('--n_head', type=int, default=4, help='transformer config number of head')
 parser.add_argument('--n_layers', type=int, default=2, help='number of transformer layers')
-parser.add_argument('--use_se', type=bool, default=True, help='cnn add se block')
+parser.add_argument('--cnn_att', type=str, default='se', help='[se, cbam]')
 parser.add_argument('--kan', type=bool, default=False, help='use kan or mlp')
 parser.add_argument('--att', type=bool, default=True, help='attention before cat')
 parser.add_argument('--fc', type=bool, default=False, help='kan with fc')
 parser.add_argument('--split_str', type=str, default=split_str, help='split_str')
 parser.add_argument('--loss_f', type=str, default='huber', help='loss function [mse, l1, rmse, huber]')
 
-parser.add_argument('--struct', type=str, default='one_encoder', help='[one_encoder, two_encoder]')
+parser.add_argument('--struct', type=str, default='two_encoder', help='[one_encoder, two_encoder]')
 
 option = parser.parse_args()

@@ -14,9 +14,8 @@ import csv
 
 """
 
-# train_label = ['2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014',
-#                '2015', '2016', '2017', '2018']
-train_label = ['2015', '2016', '2017', '2018']
+train_label = ['2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014',
+               '2015', '2016', '2017', '2018']
 test_label = ['2019', '2020', '2021']
 val_label = ['2019']
 all_label = ['2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014',
@@ -183,5 +182,9 @@ if __name__ == '__main__':
     # build_data('E:\\Crop Prediction\\Datasets\\MOD09A1', './data')
     # build_data(r'E:\25holiday\Dataset\Finally\lzw_mod09a1\Henan', './data', r'E:\25holiday\data\code\henan_code.txt')
     # build_data(r'E:\25holiday\Dataset\Finally\lzw_mod09a1\Henan', './data', r'E:\25holiday\data\code\henan_code.txt')
-    build_data(r'E:\25holiday\Dataset\Finally\lzw_mod09a1\Gansu', './data', r'E:\25holiday\data\code\gansu_code.txt')
+    # build_data(r'E:\25holiday\Dataset\Finally\lzw_mod09a1\Gansu', './data', r'E:\25holiday\data\code\gansu_code.txt')
+    build_data(r'E:\25holiday\Dataset\Finally\lzw_mod09a1\Shanxi', './data', r'./data/code/shanxi_code.txt')
+    # build_data(r'/root/Finally/lzw_mod09a1/Gansu', './data', r'./data/code/gansu_code.txt')
+    # build_data(r'/root/Finally/lzw_mod09a1/Shanxi', './data', r'./data/code/shanxi_code.txt')
+    # build_data(r'/root/Finally/lzw_mod09a1/Henan', './data', r'./data/code/henan_code.txt')
     # build_data_by_code('E:\\project\\dl\\Crop Prediction\\Datasets\\output\\MOD09A1', './data')

@@ -57,19 +57,20 @@ class SEResNet18(nn.Module):
 
 
 if __name__ == '__main__':
-    input_tensor = torch.randn(32, 3, 224, 224)
+    input_tensor = torch.randn(2, 3, 224, 224)
 
     # model = SEResNet18(pretrained=True)
     model = SEResNet18(pretrained=True)
     out = model(input_tensor)
-    print(model)
-    print('=======================================')
-    resnet_09a1 = torchvision.models.resnet18(pretrained=True)
-    modules = list(resnet_09a1.children())[:-1]  # 去掉最后的全连接层
-    cnn_09a1 = nn.Sequential(*modules)
-    out_2 = cnn_09a1(input_tensor)
-    print(cnn_09a1)
-    # 计算并打印模型的参数量（单位：百万）
-    total_params = sum(param.numel() for param in model.parameters())
-    total_params_in_millions = total_params / 1_000_000
-    print(f"模型的总参数量: {total_params_in_millions:.2f}M")
+    print(out.shape)
+    # print('=======================================')
+    # resnet_09a1 = torchvision.models.resnet18(pretrained=True)
+    # modules = list(resnet_09a1.children())[:-1]  # 去掉最后的全连接层
+    # cnn_09a1 = nn.Sequential(*modules)
+    # out_2 = cnn_09a1(input_tensor)
+    # print(cnn_09a1)
+    # # model = cnn_09a1
+    # # 计算并打印模型的参数量（单位：百万）
+    # total_params = sum(param.numel() for param in model.parameters())
+    # total_params_in_millions = total_params / 1_000_000
+    # print(f"模型的总参数量: {total_params_in_millions:.2f}M")

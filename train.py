@@ -101,7 +101,8 @@ def train():
                                          hdf5_11a2=opt.train_h5_11a2, hdf5_fldas=opt.train_h5_fldas)
     min_val, max_val = train_dataset.raw_min_val, train_dataset.raw_max_val
     val_dataset = ImageSequenceDataset(val_09a1, val_11a2, val_fldas, hdf5_09a1=opt.val_h5_09a1,
-                                       hdf5_11a2=opt.val_h5_11a2, hdf5_fldas=opt.val_h5_fldas, min_val=min_val, max_val=max_val, is_train=False)
+                                       hdf5_11a2=opt.val_h5_11a2, hdf5_fldas=opt.val_h5_fldas, min_val=min_val,
+                                       max_val=max_val, is_train=False)
     train_dataloader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=shuffle)
     val_dataloader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=shuffle)
 
@@ -122,8 +123,8 @@ def train():
         for i, (x, y, fldas, labels, path, _, history_data) in enumerate(train_dataloader):
             x = x.to(device)
             y = y.to(device)
-            fldas = y.to(device)
-            history_data = y.to(device)
+            fldas = fldas.to(device)
+            history_data = history_data.to(device)
             labels = labels.view(-1, 1).to(device)
             outputs = model(x, y, fldas, history_data)
             loss = criterion(outputs, labels)
@@ -145,6 +146,8 @@ def train():
             for x, y, fldas, labels, path, area, history_data in val_dataloader:  # 假设val_dataloader是你的验证数据加载器
                 x = x.to(device)
                 y = y.to(device)
+                fldas = fldas.to(device)
+                history_data = history_data.to(device)
                 labels = labels.view(-1, 1).to(device)
                 outputs = model(x, y, fldas, history_data)
                 val_loss += criterion(outputs, labels).item()  # 累加每个批次的损失

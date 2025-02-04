@@ -9,6 +9,7 @@ from config.config import option as opt
 from model.custom_encoder import CustomTransformerEncoder, PositionalEncoding
 from model.kan import KAN
 from model.lstm import LSTMModel
+from model.resnet_cbam import CBAMResNet18
 from model.resnet_se import SEResNet18
 
 
@@ -25,9 +26,12 @@ class Kansformer_lstm(nn.Module):
         self.conv1_fldas = nn.Conv2d(y_channels, 3, kernel_size=1)
 
         # CNN部分，使用预训练的ResNet
-        if opt.use_se:
+        if opt.cnn_att == 'se':
             self.cnn_modis = SEResNet18(pretrained=True)
             self.cnn_fldas = SEResNet18(pretrained=True)
+        elif opt.cnn_att == 'cbam':
+            self.cnn_modis = CBAMResNet18(pretrained=True)
+            self.cnn_fldas = CBAMResNet18(pretrained=True)
         else:
             resnet_09a1 = torchvision.models.resnet18(pretrained=True)
             modules = list(resnet_09a1.children())[:-1]  # 去掉最后的全连接层
@@ -42,7 +46,7 @@ class Kansformer_lstm(nn.Module):
 
         self.time_step_att = TimeStepAttention(input_dim=d_model * 2, num_heads=opt.n_head)
         hidden_size = 64
-        self.lstm = LSTMModel(1, hidden_size, 1).to('cuda')
+        self.lstm = LSTMModel(1, hidden_size, 1)
         self.qkv_fusion = QKVFusion(hidden_size, d_model * 2)
         if opt.att:
             self.att = Attention(input_dim=d_model * 2)
@@ -87,49 +91,50 @@ class Kansformer_lstm(nn.Module):
         return output[:, -1, :]
 
     def forward(self, x, y, fldas, h_data):
-        if opt.struct:
+        if opt.struct == 'one_encoder':
             return self.forward_1encoder(x, y, fldas, h_data)
-        lstm_out = self.forward_lstm(h_data)
-        modis_data = torch.cat([x, y], 2)
-        batch_size, timesteps, c, h, w = modis_data.size()
-        x_in = modis_data.view(batch_size * timesteps, c, h, w)
-        x_in = self.conv1_modis(x_in)
-        x_out = self.cnn_modis(x_in)
-        r_in_x = x_out.view(batch_size, timesteps, -1).permute(1, 0, 2)
+        if opt.struct == 'two_encoder':
+            lstm_out = self.forward_lstm(h_data)
+            modis_data = torch.cat([x, y], 2)
+            batch_size, timesteps, c, h, w = modis_data.size()
+            x_in = modis_data.view(batch_size * timesteps, c, h, w)
+            x_in = self.conv1_modis(x_in)
+            x_out = self.cnn_modis(x_in)
+            r_in_x = x_out.view(batch_size, timesteps, -1).permute(1, 0, 2)
 
-        batch_size_y, timesteps_y, c_y, h_y, w_y = fldas.size()
-        y_in = fldas.view(batch_size_y * timesteps_y, c_y, h_y, w_y)
-        y_in = self.conv1_fldas(y_in)
-        y_out = self.cnn_fldas(y_in)
-        r_in_y = y_out.view(batch_size, timesteps, -1).permute(1, 0, 2)
+            batch_size_y, timesteps_y, c_y, h_y, w_y = fldas.size()
+            y_in = fldas.view(batch_size_y * timesteps_y, c_y, h_y, w_y)
+            y_in = self.conv1_fldas(y_in)
+            y_out = self.cnn_fldas(y_in)
+            r_in_y = y_out.view(batch_size, timesteps, -1).permute(1, 0, 2)
 
-        r_in_x = self.pos_encoder_modis(r_in_x)
-        r_in_y = self.pos_encoder_fldas(r_in_y)
-        r_out_x = self.transformer_modis(r_in_x)
-        r_out_y = self.transformer_fldas(r_in_y)
+            r_in_x = self.pos_encoder_modis(r_in_x)
+            r_in_y = self.pos_encoder_fldas(r_in_y)
+            r_out_x = self.transformer_modis(r_in_x)
+            r_out_y = self.transformer_fldas(r_in_y)
 
-        if opt.time_att:
-            # 时间特征提取
-            r_last = self.time_step_att(torch.cat((r_out_x, r_out_y), -1))
-        else:
-            r_last_x = r_out_x[-1, :, :]
-            r_last_y = r_out_y[-1, :, :]
-            r_last = torch.cat((r_last_x, r_last_y), -1)
+            if opt.time_att:
+                # 时间特征提取
+                r_last = self.time_step_att(torch.cat((r_out_x, r_out_y), -1))
+            else:
+                r_last_x = r_out_x[-1, :, :]
+                r_last_y = r_out_y[-1, :, :]
+                r_last = torch.cat((r_last_x, r_last_y), -1)
 
-        # fusion lstm and encoder
-        r_last = self.qkv_fusion(r_last, lstm_out)
+            # fusion lstm and encoder
+            r_last = self.qkv_fusion(r_last, lstm_out)
 
-        if opt.att:
-            r_last = self.att(r_last)
+            if opt.att:
+                r_last = self.att(r_last)
 
-        if opt.kan:
-            output = self.kan(r_last)
-            if opt.fc:
-                output = self.fc(output)
-        else:
-            output = self.mlp(r_last)
+            if opt.kan:
+                output = self.kan(r_last)
+                if opt.fc:
+                    output = self.fc(output)
+            else:
+                output = self.mlp(r_last)
 
-        return output
+            return output
 
     def forward_1encoder(self, x, y, fldas, h_data):
         lstm_out = self.forward_lstm(h_data)

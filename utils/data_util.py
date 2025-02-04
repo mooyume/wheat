@@ -30,7 +30,7 @@ def remove_item(pred, real, sowing_area, paths=None, value=3000):
         else:
             if paths is not None and len(paths) > 0:
                 removed_paths.append(paths[i])
-                filtered_df = get_name_by_path(paths[i])
+                # filtered_df = get_name_by_path(paths[i])
                 # print(f'移除：{filtered_df["dt_name"].values[0]}')
 
     # 计算移除的元素数量
