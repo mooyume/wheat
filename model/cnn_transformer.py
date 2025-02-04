@@ -3,7 +3,7 @@ import torchvision
 from torch import nn
 
 from attention.attention import Attention
-from attention.fusion_lstm_encoder import QKVFusion
+from attention.fusion_lstm_encoder import CrossAttentionFusion
 from attention.time_step_att import TimeStepAttention
 from config.config import option as opt
 from model.custom_encoder import CustomTransformerEncoder, PositionalEncoding
@@ -47,7 +47,7 @@ class Kansformer_lstm(nn.Module):
         self.time_step_att = TimeStepAttention(input_dim=d_model * 2, num_heads=opt.n_head)
         hidden_size = 64
         self.lstm = LSTMModel(1, hidden_size, 1)
-        self.qkv_fusion = QKVFusion(hidden_size, d_model * 2)
+        self.cross_fusion = CrossAttentionFusion(hidden_size, d_model * 2)
         if opt.att:
             self.att = Attention(input_dim=d_model * 2)
 
@@ -122,7 +122,7 @@ class Kansformer_lstm(nn.Module):
                 r_last = torch.cat((r_last_x, r_last_y), -1)
 
             # fusion lstm and encoder
-            r_last = self.qkv_fusion(r_last, lstm_out)
+            r_last = self.cross_fusion(r_last, lstm_out)
 
             if opt.att:
                 r_last = self.att(r_last)
@@ -163,7 +163,7 @@ class Kansformer_lstm(nn.Module):
             r_last = r_out[-1, :, :]
 
         # fusion lstm and encoder
-        r_last = self.qkv_fusion(r_last, lstm_out)
+        r_last = self.cross_fusion(r_last, lstm_out)
 
         if opt.att:
             r_last = self.att(r_last)

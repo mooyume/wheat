@@ -136,7 +136,7 @@ class CBAMResNet18(nn.Module):
 # ---------------------- 测试代码 ----------------------
 if __name__ == "__main__":
     model = CBAMResNet18(pretrained=True)
-    x = torch.randn(2, 3, 224, 224)
+    x = torch.randn(2, 3, 16, 16)
     output = model(x)
     print("输出形状:", output.shape)  # 应为 torch.Size([2, 1000])
 
