@@ -13,8 +13,8 @@ class LSTMModel(nn.Module):
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
 
     def forward(self, x, lengths):
-        h_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size, dtype=x.dtype)  # 隐藏状态初始化
-        c_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size, dtype=x.dtype)  # 细胞状态初始化
+        h_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size, dtype=x.dtype).to(x.device)  # 隐藏状态初始化
+        c_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size, dtype=x.dtype).to(x.device)  # 细胞状态初始化
         packed_input = pack_padded_sequence(x, lengths, batch_first=True, enforce_sorted=False)
         packed_output, _ = self.lstm(packed_input, (h_0, c_0))  # LSTM 前向传播
         output, _ = pad_packed_sequence(packed_output, batch_first=True)
