@@ -4,9 +4,9 @@ import sys
 if sys.platform.startswith('linux'):
     default_path = '/root/autodl-tmp/'
     split_str = '/'
-    file_paths = [r"/root/wheat/data/gansu-label.xlsx",
-                  r"/root/wheat/data/henan-label.xlsx",
-                  r"/root/wheat/data/shanxi-label.xlsx"]
+    file_paths = [r"/root/wheat/data/his_data/gansu-label.xlsx",
+                  r"/root/wheat/data/his_data/henan-label.xlsx",
+                  r"/root/wheat/data/his_data/shanxi-label.xlsx"]
 elif sys.platform == 'win32':
     default_path = 'data/'
     split_str = '\\'
@@ -52,24 +52,24 @@ parser.add_argument('--n_lr_decay', type=int, default=10, help='step of lr decay
 parser.add_argument('--decay_gamma', type=float, default=0.5, help='initial learning rate')
 parser.add_argument('--log_path', type=str, default='log', help='log file path')
 parser.add_argument('--save_path', type=str, default='pt', help='model save path')
-parser.add_argument('--model_name', type=str, default='2cnn_lstm_kan',
-                    help='save model name [kan_two_branch, 3d, 2cnn_lstm_kan]')
-parser.add_argument('--save_name', type=str, default='kan_two_branch_se_kan_att_henan', help='save file name')
+parser.add_argument('--model_name', type=str, default='2cnn_encoder_lstm',
+                    help='save model name [kan_two_branch, 3d, 2cnn_encoder_lstm]')
+parser.add_argument('--save_name', type=str, default='two_encoder_cbam_cross_gate_henan', help='save file name')
 parser.add_argument('--accumulation_steps', type=int, default=1,
                     help='accumulation steps real batch size is accumulation_steps*batch_size')
 parser.add_argument('--norm_ratio', type=int, default=10, help='norm ratio')
 
 parser.add_argument('--img_shape', type=int, default=134, help='img_shape')
 parser.add_argument('--fldas_shape', type=int, default=16, help='img_shape')
-parser.add_argument('--time_att', type=bool, default=True, help='img_shape')
+parser.add_argument('--time_att', type=bool, default=True, help='step pooling')
 parser.add_argument('--label_nor', type=bool, default=False, help='产量归一化')
 
 parser.add_argument('--use_11a2', type=bool, default=True, help='use mod11a2 two branch')
 parser.add_argument('--n_head', type=int, default=4, help='transformer config number of head')
-parser.add_argument('--n_layers', type=int, default=2, help='number of transformer layers')
-parser.add_argument('--cnn_att', type=str, default='se', help='[se, cbam]')
+parser.add_argument('--n_layers', type=int, default=6, help='number of transformer layers')
+parser.add_argument('--cnn_att', type=str, default='cbam', help='[se, cbam]')
 parser.add_argument('--kan', type=bool, default=False, help='use kan or mlp')
-parser.add_argument('--att', type=bool, default=True, help='attention before cat')
+parser.add_argument('--att', type=bool, default=False, help='attention before cat')
 parser.add_argument('--fc', type=bool, default=False, help='kan with fc')
 parser.add_argument('--split_str', type=str, default=split_str, help='split_str')
 parser.add_argument('--loss_f', type=str, default='huber', help='loss function [mse, l1, rmse, huber]')

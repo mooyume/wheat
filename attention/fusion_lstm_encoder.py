@@ -7,13 +7,12 @@ import torch.nn.functional as F
 
 
 class CrossAttentionFusion(nn.Module):
-    def __init__(self, hidden_size, d_model):
+    def __init__(self,d_model):
         super(CrossAttentionFusion, self).__init__()
-        self.hidden_size = hidden_size
         self.d_model = d_model
 
         # 定义线性层
-        self.query_layer = nn.Linear(hidden_size, d_model)  # 将 LSTM 输出映射到 d_model
+        self.query_layer = nn.Linear(d_model, d_model)  # 将 Transformer 输出映射到 d_model
         self.key_layer = nn.Linear(d_model, d_model)  # 将 Transformer 输出映射到 d_model
         self.value_layer = nn.Linear(d_model, d_model)  # 将 Transformer 输出映射到 d_model
         self.fc = nn.Linear(d_model, d_model)  # 最终的融合层
@@ -53,12 +52,11 @@ if __name__ == '__main__':
     # 示例调用
     batch_size = 32
     d_model = 512
-    hidden_size = 64
 
     transformer_output = torch.randn(batch_size, d_model)  # (batch_size, d_model)
-    lstm_output = torch.randn(batch_size, hidden_size)  # (batch_size, hidden_size)
+    lstm_output = torch.randn(batch_size, d_model)  # (batch_size, hidden_size)
 
 
-    cross_attention_fusion = CrossAttentionFusion(hidden_size, d_model)
+    cross_attention_fusion = CrossAttentionFusion(d_model)
     fused_output = cross_attention_fusion(transformer_output, lstm_output)
     print(fused_output.shape)  # 输出形状: (batch_size, d_model)

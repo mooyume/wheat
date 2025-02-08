@@ -14,22 +14,16 @@ class LSTMModel(nn.Module):
 
     def forward(self, x, lengths):
         device = x.device  # 获取输入张量所在的设备
-        print(f"Input device: {device}")  # 打印输入张量的设备
 
         h_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size, dtype=x.dtype).to(device)  # 隐藏状态初始化
-        print(f"h_0 device: {h_0.device}")  # 打印 h_0 的设备
 
         c_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size, dtype=x.dtype).to(device)  # 细胞状态初始化
-        print(f"c_0 device: {c_0.device}")  # 打印 c_0 的设备
 
         packed_input = pack_padded_sequence(x, lengths, batch_first=True, enforce_sorted=False).to(device)
-        print(f"Packed input device: {packed_input.data.device}")  # 打印 packed_input 的设备
 
         packed_output, _ = self.lstm(packed_input, (h_0, c_0))  # LSTM 前向传播
-        print(f"Packed output device: {packed_output.data.device}")  # 打印 packed_output 的设备
 
         output, _ = pad_packed_sequence(packed_output, batch_first=True)
-        print(f"Output device: {output.device}")  # 打印 output 的设备
 
         return output
 

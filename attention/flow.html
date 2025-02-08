@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DualModalCrossGatingFusion 流程图 (简化版)</title>
+<style>
+  .container {
+    display: grid; /* 使用 Grid 布局 */
+    grid-template-columns: repeat(7, 1fr); /* 定义 7 列 */
+    grid-gap: 10px; /* 网格间隙 */
+    align-items: center;
+    max-width: 800px; /* 限制最大宽度 */
+    margin: 20px auto; /* 居中显示 */
+    padding: 20px;
+    border: 1px solid #ccc; /* 可选边框 */
+  }
+  .box, .operator-box, .input-box, .output-box, .intermediate-box {
+    border: 1px solid black;
+    padding: 8px; /* 减少内边距 */
+    text-align: center;
+    width: auto; /* 宽度自适应内容 */
+    box-sizing: border-box; /* 包含 padding 和 border 在宽度内 */
+    background-color: #f0f0f0;
+    border-radius: 4px; /* 轻微圆角 */
+  }
+  .operator-box {
+    border-style: dashed;
+    background-color: #e0e0e0;
+  }
+  .input-box {
+    border-color: blue;
+    background-color: #f8f8ff;
+  }
+  .output-box {
+    border-color: green;
+    background-color: #f0fff0;
+  }
+  .intermediate-box {
+    border-color: orange;
+    background-color: #fffaf0;
+  }
+  .arrow {
+    height: 2px;
+    background-color: black;
+    grid-column: span 1; /* 箭头跨越 1 列 */
+    position: relative;
+  }
+  .arrow::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -2px; /* 微调箭头头部位置 */
+    border-left: 5px solid black; /* 箭头头部大小 */
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+  }
+  .vertical-arrow {
+    width: 2px;
+    background-color: black;
+    grid-column: span 1;
+    grid-row: span 1; /* 垂直箭头跨越 1 行 */
+    justify-self: center; /* 垂直居中 */
+    align-self: center;   /* 水平居中 */
+  }
+   .vertical-arrow::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -2px; /* 微调箭头头部位置 */
+    border-top: 5px solid black; /* 箭头头部大小 */
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+  }
+  .grid-row-start-2 {
+    grid-row-start: 2; /* 用于垂直对齐第二行元素 */
+  }
+  .grid-row-start-3 {
+    grid-row-start: 3; /* 用于垂直对齐第三行元素 */
+  }
+  .grid-row-start-4 {
+    grid-row-start: 4; /* 用于垂直对齐第四行元素 */
+  }
+    .grid-row-start-5 {
+    grid-row-start: 5; /* 用于垂直对齐第五行元素 */
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="input-box" style="grid-row: 1;">F_hist</div>
+  <div class="arrow" style="grid-row: 1;"></div>
+  <div class="operator-box" style="grid-row: 1;">历史产量特征投影<br>(self.projection)</div>
+  <div class="arrow" style="grid-row: 1;"></div>
+  <div class="intermediate-box" style="grid-row: 1;">F_hist_proj</div>
+  <div class="arrow" style="grid-row: 1;"></div>
+  <div class="operator-box" style="grid-row: 1;">W_q_t (线性层)</div>
+  <div class="arrow" style="grid-row: 1;"></div>
+  <div class="intermediate-box" style="grid-row: 1;">Q_t</div>
+
+
+  <div class="input-box" style="grid-row: 2;">F_rs</div>
+  <div class="arrow" style="grid-row: 2;"></div>
+  <div class="operator-box" style="grid-row: 2;">W_k_s (线性层)</div>
+  <div class="arrow" style="grid-row: 2;"></div>
+  <div class="intermediate-box" style="grid-row: 2;">K_s</div>
+  <div class="vertical-arrow grid-row-start-2" style="grid-column: 6;"></div>
+  <div class="operator-box" style="grid-row: 2; grid-column: 7;">matmul / (d_model**0.5)<br>sigmoid</div>
+
+
+  <div style="grid-row: 3; grid-column: 5;"></div> <div style="grid-row: 3; grid-column: 6;"></div> <div class="box" style="grid-row: 3; grid-column: 7;">G_t<br>(时间门控权重)</div>
+  <div class="arrow" style="grid-row: 3; grid-column: 8;"></div>
+  <div class="operator-box" style="grid-row: 3; grid-column: 9;">* (元素乘)</div>
+  <div class="arrow" style="grid-row: 3; grid-column: 10;"></div>
+  <div class="intermediate-box" style="grid-row: 3; grid-column: 11;">F_rs_gated</div>
+
+
+  <div class="input-box" style="grid-row: 4;">F_rs</div>
+  <div class="arrow" style="grid-row: 4;"></div>
+  <div class="operator-box" style="grid-row: 4;">W_q_s (线性层)</div>
+  <div class="arrow" style="grid-row: 4;"></div>
+  <div class="intermediate-box" style="grid-row: 4;">Q_s</div>
+  <div class="vertical-arrow grid-row-start-4" style="grid-column: 6;"></div>
+    <div class="operator-box" style="grid-row: 4; grid-column: 7;">W_k_t (线性层)</div>
+
+
+  <div style="grid-row: 5; grid-column: 5;"></div> <div style="grid-row: 5; grid-column: 6;"></div> <div class="intermediate-box" style="grid-row: 5; grid-column: 7;">K_t</div>
+  <div class="vertical-arrow grid-row-start-5" style="grid-column: 8;"></div>
+  <div class="operator-box" style="grid-row: 5; grid-column: 9;">matmul / (d_model**0.5)<br>sigmoid</div>
+  <div class="vertical-arrow grid-row-start-5" style="grid-column: 10;"></div>
+  <div class="box" style="grid-row: 5; grid-column: 11;">G_s<br>(空间门控权重)</div>
+  <div class="arrow" style="grid-row: 5; grid-column: 12;"></div>
+  <div class="operator-box" style="grid-row: 5; grid-column: 13;">* (元素乘)</div>
+  <div class="arrow" style="grid-row: 5; grid-column: 14;"></div>
+  <div class="intermediate-box" style="grid-row: 5; grid-column: 15;">F_hist_gated</div>
+
+
+  <div class="intermediate-box" style="grid-row: 7;">F_rs_gated</div>
+  <div class="arrow" style="grid-row: 7;"></div>
+  <div class="operator-box" style="grid-row: 7;">相加 (+)</div>
+  <div class="arrow" style="grid-row: 7;"></div>
+  <div class="intermediate-box" style="grid-row: 7;">F_inter1</div>
+  <div class="arrow" style="grid-row: 7;"></div>
+  <div class="operator-box" style="grid-row: 7;">Dropout<br>(self.dropout)</div>
+  <div class="arrow" style="grid-row: 7;"></div>
+  <div class="output-box" style="grid-row: 7;">F_fused</div>
+  <div class="intermediate-box" style="grid-row: 8;">F_hist_gated</div>
+  <div class="arrow vertical-arrow" style="grid-row: 7; grid-column: 3; margin: 0; grid-row-start: 7; align-self: end; height: 20px;"></div>
+   <div class="intermediate-box" style="grid-row: 9;">F_rs</div>
+  <div class="arrow vertical-arrow" style="grid-column: 3; margin: 0; grid-row-start: 9; align-self: end; height: 20px;"></div>
+   <div class="intermediate-box" style="grid-row: 10;">F_hist_proj</div>
+  <div class="arrow vertical-arrow" style="grid-column: 3; margin: 0; grid-row-start: 10; align-self: end; height: 20px;"></div>
+
+
+</div>
+
+</body>
+</html>

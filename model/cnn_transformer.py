@@ -3,11 +3,13 @@ import torchvision
 from torch import nn
 
 from attention.attention import Attention
+from attention.dual_modal_cross_att import DualModalCrossGatingFusion
 from attention.fusion_lstm_encoder import CrossAttentionFusion
 from attention.time_step_att import TimeStepAttention
 from config.config import option as opt
 from model.custom_encoder import CustomTransformerEncoder, PositionalEncoding
 from model.kan import KAN
+from model.lite_resnet_cbam import LiteCBAMResNet18
 from model.lstm import LSTMModel
 from model.resnet_cbam import CBAMResNet18
 from model.resnet_se import SEResNet18
@@ -31,7 +33,7 @@ class Kansformer_lstm(nn.Module):
             self.cnn_fldas = SEResNet18(pretrained=True)
         elif opt.cnn_att == 'cbam':
             self.cnn_modis = CBAMResNet18(pretrained=True)
-            self.cnn_fldas = CBAMResNet18(pretrained=True)
+            self.cnn_fldas = LiteCBAMResNet18(pretrained=True)
         else:
             resnet_09a1 = torchvision.models.resnet18(pretrained=True)
             modules = list(resnet_09a1.children())[:-1]  # 去掉最后的全连接层
@@ -44,16 +46,16 @@ class Kansformer_lstm(nn.Module):
         d_model = 512
         # d_model = 256
 
-        self.time_step_att = TimeStepAttention(input_dim=d_model * 2, num_heads=opt.n_head)
+        self.time_step_att_modis = TimeStepAttention(input_dim=d_model, num_heads=opt.n_head)
+        self.time_step_att_fldas = TimeStepAttention(input_dim=d_model, num_heads=opt.n_head)
         hidden_size = 64
         self.lstm = LSTMModel(1, hidden_size, 1)
-        self.cross_fusion = CrossAttentionFusion(hidden_size, d_model * 2)
-        if opt.att:
-            self.att = Attention(input_dim=d_model * 2)
+        self.cross_fusion = CrossAttentionFusion(d_model)
+        self.gate = DualModalCrossGatingFusion(d_model, hidden_size)
 
         # 输出层
         layers = []
-        sizes = [d_model * 2, d_model, d_model // 2, 1]
+        sizes = [d_model, d_model//2, d_model // 4, 1]
         for i in range(len(sizes) - 1):
             layers.append(nn.Linear(sizes[i], sizes[i + 1]))
             if i != len(sizes) - 2:  # 不在最后一层
@@ -115,14 +117,17 @@ class Kansformer_lstm(nn.Module):
 
             if opt.time_att:
                 # 时间特征提取
-                r_last = self.time_step_att(torch.cat((r_out_x, r_out_y), -1))
+                r_last_x = self.time_step_att_modis(r_out_x)
+                r_last_y = self.time_step_att_fldas(r_out_y)
             else:
                 r_last_x = r_out_x[-1, :, :]
                 r_last_y = r_out_y[-1, :, :]
-                r_last = torch.cat((r_last_x, r_last_y), -1)
+                # r_last = torch.cat((r_last_x, r_last_y), -1)
+
+            r_last = self.cross_fusion(r_last_x, r_last_y)
 
             # fusion lstm and encoder
-            r_last = self.cross_fusion(r_last, lstm_out)
+            r_last = self.gate(r_last, lstm_out)
 
             if opt.att:
                 r_last = self.att(r_last)
