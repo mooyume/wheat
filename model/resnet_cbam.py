@@ -138,8 +138,8 @@ if __name__ == "__main__":
     model = CBAMResNet18(pretrained=True)
     x = torch.randn(2, 3, 16, 16)
     output = model(x)
-    print("输出形状:", output.shape)  # 应为 torch.Size([2, 1000])
 
     # 打印修改后的模型结构
     print("\n模型结构摘要:")
     print(model)
+    print("输出形状:", output.shape)

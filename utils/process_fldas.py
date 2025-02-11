@@ -87,5 +87,5 @@ if __name__ == "__main__":
     for folder in deepest_folders:
         print(folder)
         output_folder = os.path.join(folder, "matched_temporal")  # 自动创建子文件夹
-        b_folder = folder.replace("lzw_fldas", "lzw_mod11a2")
+        b_folder = folder.replace("fldas", "mcd12q1_mask")
         process_files(folder, b_folder, output_folder)
