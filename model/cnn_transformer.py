@@ -92,12 +92,12 @@ class Kansformer_lstm(nn.Module):
         output = self.lstm(h_data, lengths)
         return output[:, -1, :]
 
-    def forward(self, x, y, fldas, h_data):
+    def forward(self, x, fldas, h_data):
         if opt.struct == 'one_encoder':
-            return self.forward_1encoder(x, y, fldas, h_data)
+            return self.forward_1encoder(x, fldas, h_data)
         if opt.struct == 'two_encoder':
             lstm_out = self.forward_lstm(h_data)
-            modis_data = torch.cat([x, y], 2)
+            modis_data = x
             batch_size, timesteps, c, h, w = modis_data.size()
             x_in = modis_data.view(batch_size * timesteps, c, h, w)
             x_in = self.conv1_modis(x_in)
@@ -141,9 +141,9 @@ class Kansformer_lstm(nn.Module):
 
             return output
 
-    def forward_1encoder(self, x, y, fldas, h_data):
+    def forward_1encoder(self, x, fldas, h_data):
         lstm_out = self.forward_lstm(h_data)
-        modis_data = torch.cat([x, y], 2)
+        modis_data = x
         batch_size, timesteps, c, h, w = modis_data.size()
         x_in = modis_data.view(batch_size * timesteps, c, h, w)
         x_in = self.conv1_modis(x_in)

@@ -23,7 +23,7 @@ else:
 parser = argparse.ArgumentParser()
 parser.add_argument('--x_channel', type=int, default=7, help='number of image channel')
 parser.add_argument('--y_channel', type=int, default=2, help='number of image channel')
-parser.add_argument('--batch_size', type=int, default=32, help='size of the batches')
+parser.add_argument('--batch_size', type=int, default=8, help='size of the batches')
 parser.add_argument('--train_file', type=str, default='data/train.txt', help='The file of train')
 parser.add_argument('--val_file', type=str, default='data/val.txt', help='The file of val')
 parser.add_argument('--test_file', type=str, default='data/val.txt', help='The file of test')

@@ -86,10 +86,10 @@ def metric(pred, label, sowing_area, logger, path):
     real = (label * 10 ** 7) / sowing_area
     pred = (pred * 10 ** 7) / sowing_area
 
-    pred, real, area, _, k = remove_item(pred, real, sowing_area, path, value=1000)
+    # pred, real, area, _, k = remove_item(pred, real, sowing_area, path, value=1000)
     rmse, mae, mape, r2, relative_error = calculate_metrics(pred, real)
     logger.info(f'rmse:{rmse}, mae:{mae}, mape:{mape}, r2:{r2}')
-    return mape, rmse, mae, r2, relative_error, k
+    return mape, rmse, mae, r2, relative_error, 0
 
 
 def calculate_metrics(pred, real):

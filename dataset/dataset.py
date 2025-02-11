@@ -12,9 +12,8 @@ from utils.get_history import get_yield_history
 
 
 class ImageSequenceDataset(Dataset):
-    def __init__(self, folders_09a1, folders_11a2, folders_fldas,
+    def __init__(self, folders_09a1, folders_fldas,
                  hdf5_09a1='data/data_09a1.h5',
-                 hdf5_11a2='data/data_11a2.h5',
                  hdf5_fldas='data/data_fldas.h5',
                  min_val=None, max_val=None, is_train=True):  # 添加 use_h5 参数
         self.labels = []
@@ -73,20 +72,17 @@ class ImageSequenceDataset(Dataset):
         # 构建或加载数据
         if not self.check_file_exists(hdf5_09a1):
             self._build_or_load_h5(hdf5_09a1, folders_09a1, 7, opt.img_shape)
-        if not self.check_file_exists(hdf5_11a2):
-            self._build_or_load_h5(hdf5_11a2, folders_11a2, 2, opt.img_shape)
         if not self.check_file_exists(hdf5_fldas):
             self._build_or_load_h5(hdf5_fldas, folders_fldas, 8, opt.fldas_shape)
         print(f'load to memory===============')
         self.data_09a1 = self._load_data_to_memory(folders_09a1, 7, hdf5_09a1, opt.img_shape)
-        self.data_11a2 = self._load_data_to_memory(folders_11a2, 2, hdf5_11a2, opt.img_shape)
-        self.data_fldas = self._load_data_to_memory(folders_fldas, 8, hdf5_fldas, opt.fldas_shape)
+        self.data_fldas = self._load_data_to_memory(folders_fldas, 13, hdf5_fldas, opt.fldas_shape)
 
         print(f'max length:{max_len},min length:{min_len}')
         print(f'max label {max(self.labels)}, min label {min(self.labels)}')
         print(
-            f'Dataset Finished! data_09a1 length:{len(self.data_09a1) if isinstance(self.data_09a1, list) else len(self.data_09a1.keys())}, data_11a2 length:{len(self.data_11a2) if isinstance(self.data_11a2, list) else len(self.data_11a2.keys())} labels length:{len(self.labels)} area length: {len(self.area)}')
-        if len(self.data_09a1) != len(self.data_11a2) or len(self.data_09a1) != len(self.labels) or len(
+            f'Dataset Finished! data_09a1 length:{len(self.data_09a1) if isinstance(self.data_09a1, list) else len(self.data_09a1.keys())}, labels length:{len(self.labels)} area length: {len(self.area)}')
+        if len(self.data_09a1) != len(self.labels) or len(
                 self.data_09a1) != len(self.area):
             raise ValueError('data length error')
 
@@ -214,14 +210,12 @@ class ImageSequenceDataset(Dataset):
     def __getitem__(self, idx):
         if isinstance(self.data_09a1, h5py.File):  # 判断数据类型
             data_09a1 = self.data_09a1[f'dataset_{idx}'][:]
-            data_11a2 = self.data_11a2[f'dataset_{idx}'][:]
             data_fldas = self.data_fldas[f'dataset_{idx}'][:]
         else:
             data_09a1 = self.data_09a1[idx]
-            data_11a2 = self.data_11a2[idx]
             data_fldas = self.data_fldas[idx]
 
-        return data_09a1, data_11a2, data_fldas, self.labels[idx], self.path[idx], self.area[idx], self.history_data[idx]
+        return data_09a1, data_fldas, self.labels[idx], self.path[idx], self.area[idx], self.history_data[idx]
 
 
 if __name__ == '__main__':
