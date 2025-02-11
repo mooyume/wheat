@@ -23,24 +23,20 @@ else:
 parser = argparse.ArgumentParser()
 parser.add_argument('--x_channel', type=int, default=7, help='number of image channel')
 parser.add_argument('--y_channel', type=int, default=2, help='number of image channel')
-parser.add_argument('--batch_size', type=int, default=32, help='size of the batches')
+parser.add_argument('--batch_size', type=int, default=8, help='size of the batches')
 parser.add_argument('--train_file', type=str, default='data/train.txt', help='The file of train')
 parser.add_argument('--val_file', type=str, default='data/val.txt', help='The file of val')
 parser.add_argument('--test_file', type=str, default='data/val.txt', help='The file of test')
 
 parser.add_argument('--train_h5_09a1', type=str, default=default_path + '/train_09a1.h5',
                     help='The h5 file of train')
-parser.add_argument('--train_h5_11a2', type=str, default=default_path + '/train_11a2.h5',
-                    help='The h5 file of train')
 parser.add_argument('--train_h5_fldas', type=str, default=default_path + '/train_fldas.h5',
                     help='The h5 file of train')
 
 parser.add_argument('--val_h5_09a1', type=str, default=default_path + '/val_09a1.h5', help='The h5 file of val')
-parser.add_argument('--val_h5_11a2', type=str, default=default_path + '/val_11a2.h5', help='The h5 file of val')
 parser.add_argument('--val_h5_fldas', type=str, default=default_path + '/val_fldas.h5', help='The h5 file of val')
 
 parser.add_argument('--test_h5_09a1', type=str, default=default_path + '/test_09a1.h5', help='The h5 file of test')
-parser.add_argument('--test_h5_11a2', type=str, default=default_path + '/test_11a2.h5', help='The h5 file of test')
 parser.add_argument('--test_h5_fldas', type=str, default=default_path + '/test_fldas.h5', help='The h5 file of test')
 
 parser.add_argument('--n_epochs', type=int, default=40, help='number of epochs of training')
@@ -54,7 +50,7 @@ parser.add_argument('--log_path', type=str, default='log', help='log file path')
 parser.add_argument('--save_path', type=str, default='pt', help='model save path')
 parser.add_argument('--model_name', type=str, default='2cnn_encoder_lstm',
                     help='save model name [kan_two_branch, 3d, 2cnn_encoder_lstm]')
-parser.add_argument('--save_name', type=str, default='two_encoder_cbam_cross_gate_henan', help='save file name')
+parser.add_argument('--save_name', type=str, default='two_encoder_cbam_cross_gate_guanzhong', help='save file name')
 parser.add_argument('--accumulation_steps', type=int, default=1,
                     help='accumulation steps real batch size is accumulation_steps*batch_size')
 parser.add_argument('--norm_ratio', type=int, default=10, help='norm ratio')

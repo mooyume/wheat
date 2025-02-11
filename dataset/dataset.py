@@ -12,33 +12,25 @@ from utils.get_history import get_yield_history
 
 
 class ImageSequenceDataset(Dataset):
-    def __init__(self, folders_09a1, folders_11a2, folders_fldas,
+    def __init__(self, folders_09a1, folders_fldas,
                  hdf5_09a1='data/data_09a1.h5',
-                 hdf5_11a2='data/data_11a2.h5',
-                 hdf5_fldas='data/data_fldas.h5',
-                 min_val=None, max_val=None, is_train=True):  # 添加 use_h5 参数
+                 hdf5_fldas='data/data_fldas.h5'):  # 添加 use_h5 参数
         self.labels = []
         self.path = []
-        self.area = []
         self.history_data = []
         max_len = 0
         min_len = 0
-
-        df = pd.read_csv('data/area_all.csv')
 
         # 遍历每个文件夹
         for i, folder in enumerate(folders_09a1):
             # 获取文件夹中的所有图片文件
             files = os.listdir(folder)
-            self.labels.append(self._read_label_and_convert(folder))
+
             self.path.append(folder)
             year, code = folder.split(opt.split_str)[-2:]
-            self.history_data.append(get_yield_history(str(year), str(code)))
-            if not is_train:
-                filtered_df = df[(df['Year'] == int(year)) & (df['Code'] == int(code))]['Area']
-                self.area.append(float(filtered_df))
-            else:
-                self.area.append(0)
+            yield_, his_data = get_yield_history(str(year), str(code), file_paths=['./data/his_data/guanzhong-label.xlsx'])
+            self.history_data.append(his_data)
+            self.labels.append(yield_)
 
             length = len(files)
             if max_len == 0:
@@ -55,13 +47,6 @@ class ImageSequenceDataset(Dataset):
         raw_min_val = np.min(self.labels)
         raw_max_val = np.max(self.labels)
 
-        if opt.label_nor:
-            # 对标签进行归一化
-            if min_val is not None and max_val is not None:
-                self.labels = opt.norm_ratio * (self.labels - min_val) / (max_val - min_val)
-            else:
-                self.labels = opt.norm_ratio * (self.labels - raw_min_val) / (raw_max_val - raw_min_val)
-
         # 返回原始标签的最小值和最大值
         self.raw_min_val = raw_min_val
         self.raw_max_val = raw_max_val
@@ -73,21 +58,17 @@ class ImageSequenceDataset(Dataset):
         # 构建或加载数据
         if not self.check_file_exists(hdf5_09a1):
             self._build_or_load_h5(hdf5_09a1, folders_09a1, 7, opt.img_shape)
-        if not self.check_file_exists(hdf5_11a2):
-            self._build_or_load_h5(hdf5_11a2, folders_11a2, 2, opt.img_shape)
         if not self.check_file_exists(hdf5_fldas):
-            self._build_or_load_h5(hdf5_fldas, folders_fldas, 8, opt.fldas_shape)
+            self._build_or_load_h5(hdf5_fldas, folders_fldas, 13, opt.fldas_shape)
         print(f'load to memory===============')
         self.data_09a1 = self._load_data_to_memory(folders_09a1, 7, hdf5_09a1, opt.img_shape)
-        self.data_11a2 = self._load_data_to_memory(folders_11a2, 2, hdf5_11a2, opt.img_shape)
-        self.data_fldas = self._load_data_to_memory(folders_fldas, 8, hdf5_fldas, opt.fldas_shape)
+        self.data_fldas = self._load_data_to_memory(folders_fldas, 13, hdf5_fldas, opt.fldas_shape)
 
         print(f'max length:{max_len},min length:{min_len}')
         print(f'max label {max(self.labels)}, min label {min(self.labels)}')
         print(
-            f'Dataset Finished! data_09a1 length:{len(self.data_09a1) if isinstance(self.data_09a1, list) else len(self.data_09a1.keys())}, data_11a2 length:{len(self.data_11a2) if isinstance(self.data_11a2, list) else len(self.data_11a2.keys())} labels length:{len(self.labels)} area length: {len(self.area)}')
-        if len(self.data_09a1) != len(self.data_11a2) or len(self.data_09a1) != len(self.labels) or len(
-                self.data_09a1) != len(self.area):
+            f'Dataset Finished! data_09a1 length:{len(self.data_09a1) if isinstance(self.data_09a1, list) else len(self.data_09a1.keys())}, labels length:{len(self.labels)}')
+        if len(self.data_09a1) != len(self.labels):
             raise ValueError('data length error')
 
     def _read_label_and_convert(self, folder_path):  # 示例标签读取和转换函数
@@ -214,14 +195,12 @@ class ImageSequenceDataset(Dataset):
     def __getitem__(self, idx):
         if isinstance(self.data_09a1, h5py.File):  # 判断数据类型
             data_09a1 = self.data_09a1[f'dataset_{idx}'][:]
-            data_11a2 = self.data_11a2[f'dataset_{idx}'][:]
             data_fldas = self.data_fldas[f'dataset_{idx}'][:]
         else:
             data_09a1 = self.data_09a1[idx]
-            data_11a2 = self.data_11a2[idx]
             data_fldas = self.data_fldas[idx]
 
-        return data_09a1, data_11a2, data_fldas, self.labels[idx], self.path[idx], self.area[idx], self.history_data[idx]
+        return data_09a1, data_fldas, self.labels[idx], self.path[idx], self.history_data[idx]
 
 
 if __name__ == '__main__':

@@ -54,35 +54,38 @@ def get_yield_history(input_year, county_code, file_paths=None):
         return []
 
     # 过滤数据：年份小于输入年份
-    filtered_data = merged_df[merged_df['统计年度'] < input_year].copy()
+    filtered_data = merged_df[merged_df['统计年度'] <= input_year].copy()
 
     # 进一步过滤县域代码匹配的数据
     filtered_data = filtered_data[filtered_data['县域代码'] == county_code]
 
     # 如果单位是“吨”，转换为“万吨”
-    filtered_data.loc[filtered_data['单位'] == '吨', '产量'] = filtered_data.loc[filtered_data['单位'] == '吨', '产量'] / 10000
+    # filtered_data.loc[filtered_data['单位'] == '吨', '产量'] = filtered_data.loc[filtered_data['单位'] == '吨', '产量'] / 10000
 
     # 提取需要的列并排序
-    filtered_data = filtered_data[['统计年度', '产量']].sort_values(by='统计年度')
+    filtered_data = filtered_data[['统计年度', '单位面积产量(归一化)']].sort_values(by='统计年度')
 
     # 仅返回产量列
-    result = filtered_data['产量'].tolist()
+    result = filtered_data['单位面积产量(归一化)'].tolist()
 
-    return result
+    if len(result) == 0:
+        raise Exception('获取产量失败')
+
+    return result[-1], result[:-1]
 
 
 # 示例调用
 if __name__ == "__main__":
     input_year = '2020'
-    county_code = "410181"
+    county_code = "610303"
 
     # 记录开始时间
     start_time = time.time()
 
     # 循环调用 get_yield_history 方法 100 次
-    for _ in range(100):
-        result = get_yield_history(input_year, county_code)
-        # print(result)  # 如果需要打印每次的结果，可以取消注释
+    for _ in range(1):
+        result = get_yield_history(input_year, county_code, file_paths=[r'E:\25holiday\data\label\guanzhong-label.xlsx'])
+        print(result)  # 如果需要打印每次的结果，可以取消注释
 
     # 记录结束时间
     end_time = time.time()

@@ -17,10 +17,6 @@ from model.resnet_se import SEResNet18
 
 class Kansformer_lstm(nn.Module):
     def __init__(self, x_channels, y_channels):
-        """
-         replay mlp to kan
-         modis  9 channels
-        """
         super(Kansformer_lstm, self).__init__()
 
         # 添加一个额外的卷积层来处理不同通道数的输入
@@ -55,7 +51,7 @@ class Kansformer_lstm(nn.Module):
 
         # 输出层
         layers = []
-        sizes = [d_model, d_model//2, d_model // 4, 1]
+        sizes = [d_model, d_model // 2, d_model // 4, 1]
         for i in range(len(sizes) - 1):
             layers.append(nn.Linear(sizes[i], sizes[i + 1]))
             if i != len(sizes) - 2:  # 不在最后一层
@@ -92,12 +88,12 @@ class Kansformer_lstm(nn.Module):
         output = self.lstm(h_data, lengths)
         return output[:, -1, :]
 
-    def forward(self, x, y, fldas, h_data):
+    def forward(self, x, fldas, h_data):
         if opt.struct == 'one_encoder':
-            return self.forward_1encoder(x, y, fldas, h_data)
+            return self.forward_1encoder(x, fldas, h_data)
         if opt.struct == 'two_encoder':
             lstm_out = self.forward_lstm(h_data)
-            modis_data = torch.cat([x, y], 2)
+            modis_data = x
             batch_size, timesteps, c, h, w = modis_data.size()
             x_in = modis_data.view(batch_size * timesteps, c, h, w)
             x_in = self.conv1_modis(x_in)
@@ -141,9 +137,9 @@ class Kansformer_lstm(nn.Module):
 
             return output
 
-    def forward_1encoder(self, x, y, fldas, h_data):
+    def forward_1encoder(self, x, fldas, h_data):
         lstm_out = self.forward_lstm(h_data)
-        modis_data = torch.cat([x, y], 2)
+        modis_data = x
         batch_size, timesteps, c, h, w = modis_data.size()
         x_in = modis_data.view(batch_size * timesteps, c, h, w)
         x_in = self.conv1_modis(x_in)

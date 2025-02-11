@@ -3,6 +3,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 def calculate_metrics(y_pred, y_true):
+    print(len(y_true))
     # 转换输入为NumPy数组
     y_true = np.asarray(y_true)
     y_pred = np.asarray(y_pred)
